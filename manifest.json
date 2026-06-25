@@ -1,0 +1,17 @@
+{
+  "name": "伏羲三维义理解卦心法",
+  "short_name": "解卦心法",
+  "description": "数字起卦 · 三维义理",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#8b4513",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

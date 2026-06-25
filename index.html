@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#8b4513">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="manifest" href="./manifest.json">
+<title>伏羲三维义理解卦心法</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <h1><img src="favicon-32.png" alt="" style="width:24px;height:24px;vertical-align:middle;border-radius:50%;margin-right:6px;">☯️ 伏羲三维义理解卦心法</h1>
+  <div class="header-actions">
+    <button id="historyBtn" class="theme-toggle" onclick="loadQueryHistory()" title="查询记录" style="display:none;">📋</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌓</button>
+    <button id="loginBtn" class="theme-toggle" onclick="showAuthModal()" title="登录">👤 登录</button>
+    <span id="userInfo" class="user-info" onclick="toggleUserMenu()" style="display:none;"></span>
+    <div id="userMenu" class="user-menu" style="display:none;">
+      <a href="#" onclick="loadQueryHistory(); toggleUserMenu(); return false;">📋 查询记录</a>
+      <a href="#" onclick="doLogout(); return false;">🚪 退出登录</a>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <main class="main" style="max-width:720px; margin:0 auto;">
+    <!-- 数字起卦 -->
+    <div class="card">
+      <div class="card-title">✉  数字起卦（不知道卦名时用）</div>
+      <div class="tooltip" style="margin-bottom:10px;">随意获得三组数字（如联想、翻书、看车牌等），分别填入下面三个框。</div>
+      <div class="num-row">
+        <div class="form-group">
+          <label>第一组</label>
+          <input type="number" id="numUpper" min="0" max="10000">
+        </div>
+        <div class="form-group">
+          <label>第二组</label>
+          <input type="number" id="numLower" min="0" max="10000">
+        </div>
+        <div class="form-group">
+          <label>第三组</label>
+          <input type="number" id="numYao" min="0" max="10000">
+        </div>
+        <button class="btn-sm" onclick="numGua()" style="margin-bottom:14px;">🎯 起卦</button>
+      </div>
+      <div class="num-result" id="numResult"></div>
+    </div>
+
+    <!-- 输入卡片 -->
+    <div class="card" id="inputCard">
+      <div class="card-title">ღ  问事解卦</div>
+      <div class="form-group">
+        <label>所问之事（越详细越好）</label>
+        <textarea id="question" placeholder="请描述你想问的事情，越具体越好。例如：我最近在考虑换工作，想看看时机是否合适..."></textarea>
+      </div>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitReading()">
+       ✍ 开始解卦
+      </button>
+      <p id="usageHint" style="text-align:center;font-size:0.75rem;color:var(--text-light);margin-top:8px;"></p>
+      <div id="redeemBox" style="display:none;text-align:center;margin-top:6px;">
+        <input type="text" id="redeemKey" placeholder="输入订阅兑换码" style="font-size:0.78rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--input-bg);color:var(--text);width:160px;text-align:center;">
+        <button class="btn-sm" onclick="redeemKey()" style="margin-left:4px;vertical-align:middle;">激活</button>
+        <p id="redeemMsg" style="font-size:0.72rem;margin-top:4px;color:var(--text-light);"></p>
+        <p style="font-size:0.67rem;color:var(--text-light);margin-top:4px;">月卡 ¥100 / 年卡 ¥1000，获取兑换码请联系徐会长</p>
+      </div>
+      <!-- JS 依赖的隐藏元素 -->
+      <select id="baseGua" onchange="onBaseGuaChange()" style="display:none"><option value=""></option></select>
+      <div class="yao-selector" id="yaoSelector" style="display:none">
+        <button class="yao-btn" data-yao="1" onclick="toggleYao(1,this)">初</button>
+        <button class="yao-btn" data-yao="2" onclick="toggleYao(2,this)">二</button>
+        <button class="yao-btn" data-yao="3" onclick="toggleYao(3,this)">三</button>
+        <button class="yao-btn" data-yao="4" onclick="toggleYao(4,this)">四</button>
+        <button class="yao-btn" data-yao="5" onclick="toggleYao(5,this)">五</button>
+        <button class="yao-btn" data-yao="6" onclick="toggleYao(6,this)">上</button>
+      </div>
+    </div>
+
+    <!-- 结果 -->
+    <div class="card result-card" id="resultCard">
+      <div class="card-title">📖 卦象解读</div>
+      <div class="result-body" id="resultBody">
+        <p class="loading">等待解读...</p>
+      </div>
+    </div>
+  </main>
+
+  <footer style="text-align:center; padding: 8px 0 24px;">
+    <p style="font-size:0.78rem; color:var(--text-light); margin-top:6px;">祝你平安、健康、清净、无忧</p>
+    <p style="font-size:0.78rem; color:var(--text-light); margin-top:6px;">解忧徐会长研发设计</p>
+  </footer>
+</div>
+
+<!-- 登录/注册弹窗 -->
+<div id="authModal" class="modal">
+  <div class="modal-content auth-modal">
+    <span class="modal-close" onclick="hideAuthModal()">&times;</span>
+    <div class="auth-tabs">
+      <button id="authTabLogin" class="auth-tab active" onclick="switchAuthTab('login')">登录</button>
+      <button id="authTabRegister" class="auth-tab" onclick="switchAuthTab('register')">注册</button>
+    </div>
+    <div id="authError" class="auth-error"></div>
+    <div id="authLoginForm">
+      <input type="text" id="loginUser" placeholder="用户名" class="auth-input">
+      <input type="password" id="loginPass" placeholder="密码" class="auth-input" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn btn-primary" onclick="doLogin()" style="width:100%;">登录</button>
+    </div>
+    <div id="authRegisterForm" style="display:none;">
+      <input type="text" id="regUser" placeholder="用户名（3-20位字母数字）" class="auth-input">
+      <input type="password" id="regPass" placeholder="密码（至少6位）" class="auth-input">
+      <input type="email" id="regEmail" placeholder="邮箱（用于找回密码，选填）" class="auth-input" onkeydown="if(event.key==='Enter')doRegister()">
+      <button class="btn btn-primary" onclick="doRegister()" style="width:100%;">注册</button>
+    </div>
+  </div>
+</div>
+
+<!-- 查询记录面板 -->
+<div id="historyPanel" class="modal">
+  <div class="modal-content history-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;">📋 查询记录</h3>
+      <span class="modal-close" onclick="hideHistoryPanel()" style="position:static;font-size:1.5rem;">&times;</span>
+    </div>
+    <div id="historyList"></div>
+    <button id="historyLoadMore" class="btn-sm" style="display:none;width:100%;margin-top:12px;">加载更多</button>
+  </div>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
+<script src="hexagrams.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

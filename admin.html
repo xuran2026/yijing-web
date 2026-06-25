@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>解忧徐会长 · 管理后台</title>
+<style>
+:root {
+  --bg: #f5f0e8; --card: #fffef9; --text: #3d3226;
+  --text-light: #6b5e4e; --accent: #8b4513; --border: #d4c5a9;
+  --tag-bg: #f0e6d3; --danger: #c0392b; --success: #2d6a4f;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+[data-theme="dark"] {
+  --bg: #1a1814; --card: #252320; --text: #ddd2c0;
+  --text-light: #a89880; --accent: #d4945a; --border: #3d3528;
+  --tag-bg: #333028; --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "KaiTi", serif;
+  background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6;
+}
+.header {
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 10px 20px; display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow);
+}
+.header h1 { font-size: 1rem; color: var(--accent); }
+.header h1 span { font-size: 0.75rem; color: var(--text-light); font-weight: 400; margin-left: 8px; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.btn {
+  padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
+  font-size: 0.85rem; font-family: inherit; cursor: pointer;
+  background: var(--card); color: var(--text); transition: all 0.15s;
+}
+.btn:hover { background: var(--tag-bg); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.85; }
+.btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+.container { max-width: 960px; margin: 0 auto; padding: 20px; }
+
+/* login */
+.login-card {
+  max-width: 360px; margin: 80px auto;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 28px; box-shadow: var(--shadow);
+}
+.login-card h2 { font-size: 1.1rem; color: var(--accent); margin-bottom: 16px; text-align: center; }
+.login-card input {
+  width: 100%; padding: 10px; margin-bottom: 12px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9rem;
+}
+.login-card input:focus { outline: none; border-color: var(--accent); }
+.login-error { color: var(--danger); font-size: 0.8rem; margin-bottom: 8px; text-align: center; min-height: 1.2em; }
+
+/* tabs */
+.tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+.tab {
+  padding: 8px 20px; border: none; background: none; font-family: inherit;
+  font-size: 0.9rem; cursor: pointer; color: var(--text-light);
+  border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tab:hover { color: var(--text); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* cards */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow);
+}
+.card-title { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+.form-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
+.form-row .field { flex: 1; min-width: 120px; }
+.field label { display: block; font-size: 0.78rem; color: var(--text-light); margin-bottom: 4px; }
+.field input, .field select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.85rem;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
+.msg { font-size: 0.8rem; margin-top: 8px; min-height: 1.2em; }
+.msg.ok { color: var(--success); }
+.msg.err { color: var(--danger); }
+
+/* user list */
+.user-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.user-table th, .user-table td {
+  padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+}
+.user-table th { color: var(--text-light); font-weight: 500; font-size: 0.78rem; }
+.user-table tr:hover { background: var(--tag-bg); }
+.user-table .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.user-table .dot.active { background: var(--success); }
+.user-table .dot.inactive { background: var(--danger); }
+.search-bar { margin-bottom: 12px; }
+.search-bar input {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.85rem;
+}
+.search-bar input:focus { outline: none; border-color: var(--accent); }
+
+/* code list */
+.code-list { max-height: 400px; overflow-y: auto; }
+.code-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
+  margin-bottom: 6px; font-size: 0.85rem;
+}
+.code-item .code-val { font-family: monospace; color: var(--accent); }
+.code-item .code-meta { font-size: 0.75rem; color: var(--text-light); }
+
+/* detail modal */
+.modal {
+  display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 16px;
+}
+.modal.visible { display: flex; }
+.modal-content {
+  background: var(--card); border-radius: 10px; padding: 24px;
+  width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative;
+}
+.modal-close {
+  position: absolute; top: 12px; right: 16px;
+  font-size: 1.4rem; cursor: pointer; color: var(--text-light);
+}
+.modal-close:hover { color: var(--text); }
+.detail-row { margin-bottom: 8px; font-size: 0.85rem; }
+.detail-row strong { color: var(--accent); }
+.detail-queries { margin-top: 12px; }
+.detail-query {
+  padding: 8px; border: 1px solid var(--border); border-radius: 4px;
+  margin-bottom: 4px; font-size: 0.8rem;
+}
+
+/* loading */
+.spinner { text-align: center; padding: 40px; color: var(--text-light); }
+</style>
+</head>
+<body>
+
+<!-- 登录 -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>☯️ 解忧徐会长 · 管理后台</h2>
+    <input type="password" id="adminKey" placeholder="管理密钥" onkeydown="if(event.key==='Enter')login()">
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-primary" style="width:100%;" onclick="login()">登录</button>
+  </div>
+</div>
+
+<!-- 主面板 -->
+<div id="mainPanel" style="display:none;">
+  <header class="header">
+    <h1>☯️ 管理后台 <span>解忧徐会长</span></h1>
+    <div class="header-actions">
+      <button class="btn btn-sm" onclick="toggleTheme()">🌓</button>
+      <button class="btn btn-sm" onclick="logout()">退出</button>
+    </div>
+  </header>
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('users')">👥 用户管理</button>
+      <button class="tab" onclick="switchTab('codes')">🎫 兑换码管理</button>
+    </div>
+
+    <!-- 用户管理 -->
+    <div id="panel-users" class="tab-panel active">
+      <div class="card">
+        <div class="card-title">🔍 搜索用户</div>
+        <div class="search-bar"><input type="text" id="userSearch" placeholder="输入用户名搜索..." oninput="filterUsers()"></div>
+        <div style="overflow-x:auto;">
+          <table class="user-table">
+            <thead><tr>
+              <th>用户名</th><th>邮箱</th><th>订阅</th><th>到期</th>
+              <th>已用/配额</th><th>注册时间</th><th>操作</th>
+            </tr></thead>
+            <tbody id="userTableBody"><tr><td colspan="7" class="spinner">加载中...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">➕ 手动加订阅/续费</div>
+        <div class="form-row">
+          <div class="field"><label>用户名</label><input type="text" id="grantUser" placeholder="输入用户名"></div>
+          <div class="field"><label>套餐</label>
+            <select id="grantPlan">
+              <option value="month">月卡 (30天)</option>
+              <option value="quarter">季卡 (90天)</option>
+              <option value="halfyear">半年卡 (180天)</option>
+              <option value="year">年卡 (365天)</option>
+            </select>
+          </div>
+          <div class="field"><label>天数（覆盖套餐）</label><input type="number" id="grantDays" value="30" min="1"></div>
+          <div class="field" style="flex:0;min-width:0;"><label>&nbsp;</label><button class="btn btn-primary" onclick="doGrant()">确认添加</button></div>
+        </div>
+        <div class="msg" id="grantMsg"></div>
+      </div>
+    </div>
+
+    <!-- 兑换码管理 -->
+    <div id="panel-codes" class="tab-panel">
+      <div class="card">
+        <div class="card-title">🎫 生成兑换码</div>
+        <div class="form-row">
+          <div class="field"><label>套餐类型</label>
+            <select id="genPlan">
+              <option value="month">月卡</option>
+              <option value="quarter">季卡</option>
+              <option value="halfyear">半年卡</option>
+              <option value="year">年卡</option>
+            </select>
+          </div>
+          <div class="field"><label>生成数量</label><input type="number" id="genCount" value="1" min="1" max="100"></div>
+          <div class="field"><label>每码可用人数</label><input type="number" id="genMaxUses" value="1" min="1" max="1000"></div>
+          <div class="field"><label>前缀</label><input type="text" id="genPrefix" value="XU-" placeholder="可选"></div>
+          <div class="field" style="flex:0;min-width:0;"><label>&nbsp;</label><button class="btn btn-primary" onclick="doGenCodes()">生成</button></div>
+        </div>
+        <div class="msg" id="genMsg"></div>
+        <div id="genResult" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 现有兑换码</div>
+        <div class="code-list" id="codeList"><div class="spinner">加载中...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 用户详情弹窗 -->
+<div id="detailModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeDetail()">&times;</span>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script>
+// ============ 状态 ============
+var API = '';
+var adminKey = '';
+var allUsers = [];
+
+function init() {
+  if (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    API = 'https://counter.' + window.location.hostname;
+  }
+  var saved = sessionStorage.getItem('yijing_admin_key');
+  if (saved) { adminKey = saved; showPanel(); }
+}
+
+function login() {
+  var key = document.getElementById('adminKey').value.trim();
+  var err = document.getElementById('loginError');
+  if (!key) { err.textContent = '请输入管理密钥'; return; }
+  if (!API) { err.textContent = '请通过域名访问'; return; }
+
+  err.textContent = '验证中...';
+  // 通过 /admin/users 试探密钥
+  fetch(API + '/admin/users', { headers: { 'X-Admin-Key': key } })
+    .then(function(r) {
+      if (r.ok) {
+        adminKey = key;
+        sessionStorage.setItem('yijing_admin_key', key);
+        showPanel();
+      } else {
+        err.textContent = '密钥错误或无权限';
+      }
+    })
+    .catch(function() { err.textContent = '网络错误'; });
+}
+
+function logout() {
+  sessionStorage.removeItem('yijing_admin_key');
+  adminKey = '';
+  allUsers = [];
+  document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('mainPanel').style.display = 'none';
+}
+
+function showPanel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainPanel').style.display = 'block';
+  loadUsers();
+  loadCodes();
+}
+
+function ah() { return { 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' }; }
+
+// ============ 用户管理 ============
+function loadUsers() {
+  var tbody = document.getElementById('userTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" class="spinner">加载中...</td></tr>';
+  fetch(API + '/admin/users?limit=200', { headers: { 'X-Admin-Key': adminKey } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      allUsers = data.users || [];
+      renderUsers(allUsers);
+    })
+    .catch(function() { tbody.innerHTML = '<tr><td colspan="7" style="color:var(--danger);text-align:center;">加载失败</td></tr>'; });
+}
+
+function renderUsers(users) {
+  var tbody = document.getElementById('userTableBody');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-light);">暂无用户</td></tr>'; return; }
+  tbody.innerHTML = users.map(function(u) {
+    var d = new Date(u.created_at);
+    var regTime = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+    var exp = u.sub_expires_at ? new Date(u.sub_expires_at) : null;
+    var subStatus = u.subscribed
+      ? '<span class="dot active"></span>' + (u.sub_plan === 'year' ? '年卡' : u.sub_plan === 'halfyear' ? '半年' : u.sub_plan === 'quarter' ? '季卡' : '月卡')
+      : '<span class="dot inactive"></span>未订阅';
+    var expStr = exp ? exp.getFullYear() + '-' + ('0'+(exp.getMonth()+1)).slice(-2) + '-' + ('0'+exp.getDate()).slice(-2) : '-';
+    return '<tr>'
+      + '<td>' + u.username + '</td>'
+      + '<td>' + (u.email || '-') + '</td>'
+      + '<td>' + subStatus + '</td>'
+      + '<td>' + expStr + '</td>'
+      + '<td>' + u.free_used + '/' + u.free_quota + '</td>'
+      + '<td>' + regTime + '</td>'
+      + '<td><button class="btn btn-sm" onclick="viewUser(\'' + u.username + '\')">详情</button>'
+      + ' <button class="btn btn-sm" onclick="quickGrant(\'' + u.username + '\')">加订阅</button></td>'
+      + '</tr>';
+  }).join('');
+}
+
+function filterUsers() {
+  var q = document.getElementById('userSearch').value.toLowerCase();
+  renderUsers(q ? allUsers.filter(function(u) { return u.username.indexOf(q) !== -1; }) : allUsers);
+}
+
+function quickGrant(uname) {
+  document.getElementById('grantUser').value = uname;
+  switchTab('users');
+  document.getElementById('grantUser').scrollIntoView({ behavior: 'smooth' });
+}
+
+function doGrant() {
+  var uname = document.getElementById('grantUser').value.trim();
+  var plan = document.getElementById('grantPlan').value;
+  var days = parseInt(document.getElementById('grantDays').value) || 30;
+  var msg = document.getElementById('grantMsg');
+  if (!uname) { msg.className = 'msg err'; msg.textContent = '请输入用户名'; return; }
+
+  var planDays = { month: 30, quarter: 90, halfyear: 180, year: 365 };
+  days = days || planDays[plan];
+
+  msg.className = 'msg'; msg.textContent = '处理中...';
+  fetch(API + '/admin/grant', {
+    method: 'POST', headers: ah(),
+    body: JSON.stringify({ username: uname, plan: plan, days: days })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) { msg.className = 'msg err'; msg.textContent = data.error; }
+    else {
+      msg.className = 'msg ok';
+      msg.textContent = '✓ ' + uname + ' 订阅已更新至 ' + new Date(data.expires_at).toLocaleDateString('zh-CN');
+      document.getElementById('grantUser').value = '';
+      loadUsers();
+    }
+  })
+  .catch(function() { msg.className = 'msg err'; msg.textContent = '网络错误'; });
+}
+
+// ============ 用户详情 ============
+function viewUser(uname) {
+  var content = document.getElementById('detailContent');
+  content.innerHTML = '<div class="spinner">加载中...</div>';
+  document.getElementById('detailModal').classList.add('visible');
+  fetch(API + '/admin/user/' + uname, { headers: { 'X-Admin-Key': adminKey } })
+    .then(function(r) { return r.json(); })
+    .then(function(u) {
+      var exp = u.sub_expires_at ? new Date(u.sub_expires_at).toLocaleDateString('zh-CN') : '无';
+      var reg = new Date(u.created_at).toLocaleDateString('zh-CN');
+      var html = '<h3 style="color:var(--accent);">' + u.username + '</h3>'
+        + '<div class="detail-row"><strong>邮箱：</strong>' + (u.email || '未填写') + '</div>'
+        + '<div class="detail-row"><strong>注册时间：</strong>' + reg + '</div>'
+        + '<div class="detail-row"><strong>订阅状态：</strong>' + (u.subscribed ? '✅ ' + (u.sub_plan || '') + ' · 至 ' + exp : '❌ 未订阅') + '</div>'
+        + '<div class="detail-row"><strong>免费额度：</strong>' + u.free_used + '/' + u.free_quota + '</div>'
+        + '<div class="detail-queries"><strong>查询记录（' + (u.queries ? u.queries.length : 0) + '条）：</strong>'
+        + (u.queries && u.queries.length ? u.queries.map(function(q) {
+            var t = new Date(parseInt(q.created_at)).toLocaleString('zh-CN');
+            return '<div class="detail-query">' + t + ' · ' + q.baseGua + (q.derivedGua ? ' → ' + q.derivedGua : '') + '<br>' + q.question + '</div>';
+          }).join('') : '<div class="detail-query">暂无记录</div>')
+        + '</div>';
+      content.innerHTML = html;
+    })
+    .catch(function() { content.innerHTML = '<div style="color:var(--danger);">加载失败</div>'; });
+}
+
+function closeDetail() { document.getElementById('detailModal').classList.remove('visible'); }
+
+// ============ 兑换码 ============
+function loadCodes() {
+  var list = document.getElementById('codeList');
+  fetch(API + '/admin/codes', { headers: { 'X-Admin-Key': adminKey } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var codes = data.codes || [];
+      if (!codes.length) { list.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px;">暂无兑换码，请在下方生成</div>'; return; }
+      list.innerHTML = codes.map(function(c) {
+        var planLabel = c.plan === 'year' ? '年卡' : c.plan === 'halfyear' ? '半年' : c.plan === 'quarter' ? '季卡' : '月卡';
+        return '<div class="code-item">'
+          + '<span class="code-val">' + c.code + '</span>'
+          + '<span class="code-meta">' + planLabel + ' · ' + c.used + '/' + c.max_uses + '人已用'
+          + (c.assigned_to && c.assigned_to.length ? ' · 用户：' + c.assigned_to.join(', ') : '')
+          + '</span>'
+          + '</div>';
+      }).join('');
+    })
+    .catch(function() { list.innerHTML = '<div style="color:var(--danger);text-align:center;">加载失败</div>'; });
+}
+
+function doGenCodes() {
+  var plan = document.getElementById('genPlan').value;
+  var count = parseInt(document.getElementById('genCount').value) || 1;
+  var maxUses = parseInt(document.getElementById('genMaxUses').value) || 1;
+  var prefix = document.getElementById('genPrefix').value.trim() || (plan === 'year' ? 'XYYEAR-' : plan === 'halfyear' ? 'XYHALF-' : plan === 'quarter' ? 'XYQUAR-' : 'XYMONTH-');
+  var msg = document.getElementById('genMsg');
+  var result = document.getElementById('genResult');
+
+  msg.className = 'msg'; msg.textContent = '生成中...';
+  result.innerHTML = '';
+
+  fetch(API + '/admin/gen-code', {
+    method: 'POST', headers: ah(),
+    body: JSON.stringify({ plan: plan, count: count, max_uses: maxUses, prefix: prefix })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) { msg.className = 'msg err'; msg.textContent = data.error; return; }
+    msg.className = 'msg ok'; msg.textContent = '✓ 已生成 ' + data.codes.length + ' 个兑换码';
+    result.innerHTML = '<div style="margin-top:8px;padding:10px;background:var(--tag-bg);border-radius:6px;font-family:monospace;font-size:0.82rem;word-break:break-all;">'
+      + data.codes.join('<br>')
+      + '</div>'
+      + '<button class="btn btn-sm" style="margin-top:8px;" onclick="copyCodes(\'' + data.codes.join('\\n') + '\')">📋 复制全部</button>';
+    loadCodes();
+  })
+  .catch(function() { msg.className = 'msg err'; msg.textContent = '网络错误'; });
+}
+
+function copyCodes(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    alert('已复制 ' + text.split('\n').length + ' 个兑换码');
+  });
+}
+
+// ============ 杂项 ============
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.toggle('active', false); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.toggle('active', false); });
+  document.querySelectorAll('.tab').forEach(function(t) { if (t.textContent.indexOf(name === 'users' ? '用户' : '兑换码') !== -1) t.classList.add('active'); });
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'codes') loadCodes();
+  if (name === 'users') loadUsers();
+}
+
+function toggleTheme() {
+  var html = document.documentElement;
+  var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('yijing_admin_theme', next);
+}
+(function() {
+  var t = localStorage.getItem('yijing_admin_theme');
+  if (t) document.documentElement.setAttribute('data-theme', t);
+  init();
+})();
+</script>
+</body>
+</html>
