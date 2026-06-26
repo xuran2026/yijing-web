@@ -1,0 +1,11 @@
+name = "xujiezhang-usage"
+main = "counter.js"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "COUNTER"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+[vars]
+# 管理密钥：生成兑换码/手动授权时用，部署后通过 wrangler secret put ADMIN_KEY 设置
+# ADMIN_KEY = "your-secret-admin-key"
