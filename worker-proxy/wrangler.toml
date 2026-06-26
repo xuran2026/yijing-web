@@ -1,0 +1,6 @@
+name = "yijing-chat-proxy-test"
+main = "proxy.js"
+compatibility_date = "2025-01-01"
+
+# 无需 KV，纯转发
+# AI_API_KEY 通过 wrangler secret put AI_API_KEY 设置（不用写在代码里）
